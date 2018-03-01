@@ -1,42 +1,32 @@
-﻿using Mono.Cecil;
-using SharePointPnP.PowerShell.ModuleFilesGenerator;
-using SharePointPnP.PowerShell.ModuleFilesGenerator.Model;
+﻿using DocGen.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace Generate
+namespace DocGen
 {
-    class Program
+    public class GenerateModuleFiles
     {
         static void Main(string[] args)
         {
             Console.WriteLine("Generating Module Files");
             var repoRoot = @"C:\repos\PnP-PowerShell\Commands\bin";
-            //var assemblyPath = args[0];
-            //var configurationName = args[1];
-            //var solutionDir = args[2];
-
-            //try
-            //{
+          
             List<CmdletInfo> allCmdlets = new List<CmdletInfo>();
             List<CmdletInfo> cmdlets = new List<CmdletInfo>();
-
-            var assemblies = new Dictionary<string, string>();
-            assemblies.Add("SharePoint Online", @"debug\SharePointPnP.PowerShell.Online.Commands.dll");
-            assemblies.Add("SharePoint Server 2013", @"debug15\SharePointPnP.PowerShell.2013.Commands.dll");
-            assemblies.Add("SharePoint Server 2016", @"debug16\SharePointPnP.PowerShell.2016.Commands.dll");
-
-            foreach (var assembly in assemblies)
-            //foreach(var assemblyPath in new string[] { @"debug\netstandard2.0\SharePointPnP.PowerShell.Core.dll" })
+            List<AssemblyInfo> assemblies = new List<AssemblyInfo>();
+            assemblies.Add(new AssemblyInfo() { AssemblyPath = Path.Combine(repoRoot, @"debug\SharePointPnP.PowerShell.Online.Commands.dll"), Platform = "SharePoint Online" });
+            assemblies.Add(new AssemblyInfo() { AssemblyPath = Path.Combine(repoRoot, @"debug15\SharePointPnP.PowerShell.2013.Commands.dll"), Platform = "SharePoint 2013" });
+            assemblies.Add(new AssemblyInfo() { AssemblyPath = Path.Combine(repoRoot, @"debug16\SharePointPnP.PowerShell.2016.Commands.dll"), Platform = "SharePoint 2016" });
+            //assemblies.Add(new AssemblyInfo() { AssemblyPath = Path.Combine(repoRoot, @"debug\netstandard2.0\SharePointPnP.PowerShell.Core.dll"), Platform = "SharePoint Online Cross-Platform" });
+            foreach (var assemblyInfo in assemblies)
             {
-                var assemblyPath = assembly.Value;
                 //var cmdletAssemblyDefinition = AssemblyDefinition.ReadAssembly(Path.Combine(repoRoot, assemblyPath), new ReaderParameters() { ReadingMode = ReadingMode.Immediate, ReadSymbols = true });
-                Assembly cmdletAssembly = Assembly.LoadFrom(Path.Combine(repoRoot, assemblyPath));
+                Assembly cmdletAssembly = Assembly.LoadFrom(assemblyInfo.AssemblyPath);
 
-                var analyzer = new CmdletsAnalyzer(cmdletAssembly,assembly.Key);
+                var analyzer = new CmdletsAnalyzer(cmdletAssembly, assemblyInfo.Platform);
 
                 allCmdlets.AddRange(analyzer.Analyze());
             }
@@ -53,13 +43,13 @@ namespace Generate
                     Copyright = first.Copyright,
                     Description = first.Description,
                     DetailedDescription = first.DetailedDescription,
-                    Examples = new List<SharePointPnP.PowerShell.CmdletHelpAttributes.CmdletExampleAttribute>(),
+                    Examples = new List<CmdletExampleAttributeEx>(),
                     Noun = first.Noun,
                     OutputType = first.OutputType,
                     OutputTypeDescription = first.OutputTypeDescription,
                     OutputTypeLink = first.OutputTypeLink,
                     Parameters = new List<CmdletParameterInfo>(),
-                    Platform = first.Platform,
+                    Platforms = first.Platforms,
                     RelatedLinks = first.RelatedLinks,
                     Syntaxes = new List<CmdletSyntax>(),
                     Verb = first.Verb,
@@ -70,20 +60,9 @@ namespace Generate
                 {
                     foreach (var parameter in additionalCmdlet.Parameters)
                     {
-                        var existingParameter = cmdletInfo.Parameters.FirstOrDefault(p => p.Name == parameter.Name);
-                        if (existingParameter == null)
+                        if (cmdletInfo.Parameters.FirstOrDefault(p => p.Name == parameter.Name) == null)
                         {
                             cmdletInfo.Parameters.Add(parameter);
-                        }
-                        else
-                        {
-                            var platforms = existingParameter.Platform.Split(new char[] { ',' }).ToList();
-                            var parameterPlatforms = parameter.Platform?.Split(new char[] { ',' }).ToList();
-                            if (parameterPlatforms != null && parameterPlatforms.Except(platforms).Any())
-                            {
-                                platforms.AddRange(parameterPlatforms.Except(platforms));
-                                existingParameter.Platform = string.Join(',', platforms);
-                            }
                         }
                     }
                     foreach (var example in additionalCmdlet.Examples)
@@ -91,6 +70,20 @@ namespace Generate
                         if (cmdletInfo.Examples.FirstOrDefault(e => e.Code == example.Code) == null)
                         {
                             cmdletInfo.Examples.Add(example);
+                        } else
+                        {
+                            var existingExample = cmdletInfo.Examples.FirstOrDefault(e => e.Code == example.Code);
+                            if(!existingExample.Platforms.Contains(example.Platforms[0]))
+                            {
+                                existingExample.Platforms.Add(example.Platforms[0]);
+                            }
+                        }
+                    }
+                    if(cmdletInfo.Examples.Count == assemblies.Count)
+                    {
+                        foreach(var example in cmdletInfo.Examples)
+                        {
+                            example.Platforms = new List<string>() { };
                         }
                     }
                     foreach (var syntax in additionalCmdlet.Syntaxes)
@@ -104,21 +97,9 @@ namespace Generate
                 cmdlets.Add(cmdletInfo);
             }
 
-            //var helpFileGenerator = new HelpFileGenerator(cmdlets, cmdletAssembly, $"{assemblyPath}-help.xml");
-            //helpFileGenerator.Generate();
-
             var markDownGenerator = new MarkDownGenerator(cmdlets, @"c:\temp");
             markDownGenerator.Generate();
 
-            //var moduleManifestGenerator = new ModuleManifestGenerator(cmdlets, assemblyPath, configurationName, cmdletAssembly.GetName().Version);
-            //moduleManifestGenerator.Generate();
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine($"ERROR: {ex.Message}");
-            //    //return 1;
-            //}
-            //return 0;
         }
     }
 }
