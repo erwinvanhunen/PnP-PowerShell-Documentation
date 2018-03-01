@@ -6,9 +6,9 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Xml.Linq;
 using SharePointPnP.PowerShell.CmdletHelpAttributes;
-using SharePointPnP.PowerShell.ModuleFilesGenerator.Model;
+using SharePointPnP.PowerShell.Documentation.Model;
 
-namespace SharePointPnP.PowerShell.ModuleFilesGenerator
+namespace SharePointPnP.PowerShell.Documentation
 {
     internal class HelpFileGenerator
     {

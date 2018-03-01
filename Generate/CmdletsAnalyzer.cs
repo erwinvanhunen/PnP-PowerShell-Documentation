@@ -5,12 +5,12 @@ using System.Management.Automation;
 using System.Reflection;
 using System.Runtime.Serialization;
 using SharePointPnP.PowerShell.CmdletHelpAttributes;
-using SharePointPnP.PowerShell.ModuleFilesGenerator.Model;
-using CmdletInfo = SharePointPnP.PowerShell.ModuleFilesGenerator.Model.CmdletInfo;
+using SharePointPnP.PowerShell.Documentation.Model;
+using CmdletInfo = SharePointPnP.PowerShell.Documentation.Model.CmdletInfo;
 using System.ComponentModel;
 using Generate.Model;
 
-namespace SharePointPnP.PowerShell.ModuleFilesGenerator
+namespace SharePointPnP.PowerShell.Documentation
 {
     internal class CmdletsAnalyzer
     {
@@ -124,6 +124,7 @@ namespace SharePointPnP.PowerShell.ModuleFilesGenerator
                     {
                         cmdletInfo.Examples.Add(exampleAttribute);
                     }
+
                     var linkAttribute = attribute as CmdletRelatedLinkAttribute;
                     if (linkAttribute != null)
                     {
@@ -135,6 +136,8 @@ namespace SharePointPnP.PowerShell.ModuleFilesGenerator
                         cmdletInfo.AdditionalParameters.Add(additionalParameter);
                     }
                 }
+                cmdletInfo.RelatedLinks.Insert(0, new CmdletRelatedLinkAttribute() { Text = "SharePoint Developer Patterns and Practices", Url = "http://aka.ms/sppnp" });
+
                 if (!string.IsNullOrEmpty(cmdletInfo.Verb) && !string.IsNullOrEmpty(cmdletInfo.Noun))
                 {
                     cmdletInfo.Syntaxes = GetCmdletSyntaxes(cmdletInfo);
@@ -379,7 +382,7 @@ namespace SharePointPnP.PowerShell.ModuleFilesGenerator
                                 Type = typeString,
                                 Name = field.Name,
                                 Required = parameterAttribute.GetAttributeValue<bool>("Mandatory"),
-                                Position = parameterAttribute.GetAttributeValue<int>("Position"),
+                                Position = parameterAttribute.HasAttribute("Position") ? parameterAttribute.GetAttributeValue<int>("Position") : int.MinValue,
                                 ValueFromPipeline = parameterAttribute.GetAttributeValue<bool>("ValueFromPipeline"),
                                 ParameterSetName = parameterAttribute.GetAttributeValue<string>("ParameterSetName"),
                                 Order = order,
@@ -389,10 +392,10 @@ namespace SharePointPnP.PowerShell.ModuleFilesGenerator
                             if (aliases != null && aliases.Any())
                             {
 #if !NETCOREAPP2_0
-                            foreach (var aliasAttribute in aliases)
-                            {
-                                cmdletParameterInfo.Aliases.AddRange(aliasAttribute.AliasNames);
-                            }
+                                foreach (var aliasAttribute in aliases)
+                                {
+                                    cmdletParameterInfo.Aliases.AddRange(aliasAttribute.AliasNames);
+                                }
 #else
                                 var customAttributesData = fieldInfo.GetCustomAttributesData();
                                 foreach (var aliasAttribute in customAttributesData.Where(c => c.AttributeType == typeof(AliasAttribute)))

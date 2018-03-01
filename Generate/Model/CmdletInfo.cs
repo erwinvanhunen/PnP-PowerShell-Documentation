@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using SharePointPnP.PowerShell.CmdletHelpAttributes;
 
-namespace SharePointPnP.PowerShell.ModuleFilesGenerator.Model
+namespace SharePointPnP.PowerShell.Documentation.Model
 {
     public class CmdletInfo
     {

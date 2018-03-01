@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharePointPnP.PowerShell.ModuleFilesGenerator
+namespace SharePointPnP.PowerShell.Documentation
 {
     internal class ModuleManifestGenerator
     {

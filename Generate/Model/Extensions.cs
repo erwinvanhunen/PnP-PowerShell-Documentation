@@ -8,6 +8,11 @@ namespace Generate.Model
 {
     internal static class Extensions
     {
+        public static bool HasAttribute(this CustomAttributeData attribute, string name)
+        {
+            return attribute.NamedArguments.Any(p => p.MemberName == name);
+        }
+
         public static T GetAttributeValue<T>(this CustomAttributeData attribute, string name)
         {
             var argument = attribute.NamedArguments.FirstOrDefault(p => p.MemberName == name);
