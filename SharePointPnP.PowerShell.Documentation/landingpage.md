@@ -61,6 +61,12 @@ To use the library you first need to connect to your tenant:
 Connect-PnPOnline –Url https://yoursite.sharepoint.com –Credentials (Get-Credential)
 ```
 
+Notice: if you use multi-factor authentication on your tenant, use 
+
+```powershell
+Connect-PnPOnline -Url https://yoursite.sharepoint.com -UseWebLogin
+```
+
 To view all cmdlets, enter
 
 ```powershell
