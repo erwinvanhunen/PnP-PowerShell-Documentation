@@ -11,13 +11,16 @@ using CmdletInfo = SharePointPnP.PowerShell.Documentation.Model.CmdletInfo;
 namespace Generate
 {
     [Cmdlet(VerbsData.Publish, "PnPPSDocumentation")]
-    public class GeneratePnPPSDocumentation : PSCmdlet
+    public class PublishPnPPSDocumentation : PSCmdlet
     {
         [Parameter(Mandatory = true)]
         public string RepoRoot;
 
         [Parameter(Mandatory = true)]
         public string OutputFolder;
+
+        [Parameter(Mandatory = false)]
+        public SwitchParameter Book;
 
         protected override void ProcessRecord()
         {
@@ -35,6 +38,7 @@ namespace Generate
             assemblies.Add("SharePoint Online", @"Commands\bin\debug\SharePointPnP.PowerShell.Online.Commands.dll");
             assemblies.Add("SharePoint Server 2013", @"Commands\bin\debug15\SharePointPnP.PowerShell.2013.Commands.dll");
             assemblies.Add("SharePoint Server 2016", @"Commands\bin\debug16\SharePointPnP.PowerShell.2016.Commands.dll");
+            assemblies.Add("SharePoint Server 2019", @"Commands\bin\debug16\SharePointPnP.PowerShell.2019.Commands.dll");
 
             foreach (var assembly in assemblies)
             {
@@ -111,8 +115,8 @@ namespace Generate
                 cmdlets.Add(cmdletInfo);
             }
 
-            WriteObject("Generation documentation");
-            var markDownGenerator = new MarkDownGenerator(cmdlets, OutputFolder);
+            WriteObject("Generate documentation");
+            var markDownGenerator = new MarkDownGenerator(cmdlets, OutputFolder, Book);
             markDownGenerator.Generate();
         }
     }

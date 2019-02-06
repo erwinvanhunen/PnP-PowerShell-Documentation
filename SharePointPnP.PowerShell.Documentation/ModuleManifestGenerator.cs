@@ -49,6 +49,12 @@ namespace SharePointPnP.PowerShell.Documentation
                         spVersion = "2016";
                         break;
                     }
+                case "debug19":
+                case "release19":
+                    {
+                        spVersion = "2019";
+                        break;
+                    }
             }
 #endif
             // Generate PSM1 file

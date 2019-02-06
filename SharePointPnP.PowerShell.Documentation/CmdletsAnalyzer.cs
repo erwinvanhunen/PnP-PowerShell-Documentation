@@ -98,12 +98,14 @@ namespace SharePointPnP.PowerShell.Documentation
                         {
                             platforms.Add("SharePoint Server 2013");
                             platforms.Add("SharePoint Server 2016");
+                            platforms.Add("SharePoint Server 2019");
                             platforms.Add("SharePoint Online");
                         }
                         if (a.SupportedPlatform.HasFlag(CmdletSupportedPlatform.OnPremises))
                         {
                             platforms.Add("SharePoint Server 2013");
                             platforms.Add("SharePoint Server 2016");
+                            platforms.Add("SharePoint Server 2019");
                         }
                         if (a.SupportedPlatform.HasFlag(CmdletSupportedPlatform.Online))
                         {
@@ -116,6 +118,10 @@ namespace SharePointPnP.PowerShell.Documentation
                         if (a.SupportedPlatform.HasFlag(CmdletSupportedPlatform.SP2016))
                         {
                             platforms.Add("SharePoint 2016");
+                        }
+                        if (a.SupportedPlatform.HasFlag(CmdletSupportedPlatform.SP2019))
+                        {
+                            platforms.Add("SharePoint 2019");
                         }
                         cmdletInfo.Platform = string.Join(", ", platforms);
                     }
@@ -174,6 +180,10 @@ namespace SharePointPnP.PowerShell.Documentation
 
                         var parameterSetName = parameterAttribute.GetAttributeValue<string>("ParameterSetName");
                         var helpMessage = parameterAttribute.GetAttributeValue<string>("HelpMessage");
+                        if (!string.IsNullOrEmpty(helpMessage))
+                        {
+                            helpMessage = helpMessage.Replace("<", "&lt;").Replace(">", "&gt;");
+                        }
                         var position = parameterAttribute.GetAttributeValue<int>("Position");
                         var mandatory = parameterAttribute.GetAttributeValue<bool>("Mandatory");
                         var cmdletSyntax = syntaxes.FirstOrDefault(c => c.ParameterSetName == parameterSetName);
@@ -273,6 +283,10 @@ namespace SharePointPnP.PowerShell.Documentation
                     foreach (var parameterAttribute in parameterAttributes)
                     {
                         var helpMessage = parameterAttribute.GetAttributeValue<string>("HelpMessage");
+                        if (!string.IsNullOrEmpty(helpMessage))
+                        {
+                            helpMessage = helpMessage.Replace("<", "&lt;").Replace(">", "&gt;");
+                        }
                         var position = parameterAttribute.GetAttributeValue<int>("Position");
                         var mandatory = parameterAttribute.GetAttributeValue<bool>("Mandatory");
 
@@ -350,6 +364,10 @@ namespace SharePointPnP.PowerShell.Documentation
                             {
                                 description = helpParameterAttribute.GetAttributeValue<string>("HelpMessage");
                             }
+                        }
+                        if(!string.IsNullOrEmpty(description))
+                        {
+                            description = description.Replace("<", "&lt;").Replace(">", "&gt;");
                         }
                         var typeString = field.FieldType.Name;
                         if (field.FieldType.IsGenericType)
