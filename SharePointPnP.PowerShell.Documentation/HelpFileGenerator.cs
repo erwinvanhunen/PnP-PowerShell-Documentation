@@ -211,7 +211,7 @@ namespace SharePointPnP.PowerShell.Documentation
         private XElement GetRelatedLinksElement(Model.CmdletInfo cmdletInfo)
         {
             var relatedLinksElement = new XElement(maml + "relatedLinks");
-            cmdletInfo.RelatedLinks.Insert(0, new CmdletRelatedLinkAttribute() { Text = "SharePoint Developer Patterns and Practices", Url = "http://aka.ms/sppnp" });
+            cmdletInfo.RelatedLinks.Insert(0, new CmdletRelatedLinkAttribute() { Text = "SharePoint Developer Patterns and Practices", Url = "https://aka.ms/sppnp" });
 
             foreach (var link in cmdletInfo.RelatedLinks)
             {

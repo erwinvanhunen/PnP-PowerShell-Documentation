@@ -13,6 +13,8 @@ namespace Generate
     [Cmdlet(VerbsData.Publish, "PnPPSDocumentation")]
     public class PublishPnPPSDocumentation : PSCmdlet
     {
+        private Assembly csomAssembly;
+
         [Parameter(Mandatory = true)]
         public string RepoRoot;
 
@@ -24,6 +26,8 @@ namespace Generate
 
         protected override void ProcessRecord()
         {
+            csomAssembly = System.Reflection.Assembly.LoadFrom(@"c:\repos\pnp-sites-core\assemblies\16.1\microsoft.sharepoint.client.dll");
+
             if (!Directory.Exists(RepoRoot))
             {
                 throw new DirectoryNotFoundException($"{RepoRoot} does not exist");
@@ -34,11 +38,14 @@ namespace Generate
             List<CmdletInfo> allCmdlets = new List<CmdletInfo>();
             List<CmdletInfo> cmdlets = new List<CmdletInfo>();
 
+            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
             var assemblies = new Dictionary<string, string>();
-            assemblies.Add("SharePoint Online", @"Commands\bin\debug\SharePointPnP.PowerShell.Online.Commands.dll");
-            assemblies.Add("SharePoint Server 2013", @"Commands\bin\debug15\SharePointPnP.PowerShell.2013.Commands.dll");
-            assemblies.Add("SharePoint Server 2016", @"Commands\bin\debug16\SharePointPnP.PowerShell.2016.Commands.dll");
-            assemblies.Add("SharePoint Server 2019", @"Commands\bin\debug16\SharePointPnP.PowerShell.2019.Commands.dll");
+            assemblies.Add("SharePoint Online", @"commands\bin\Debug\SharePointPnP.PowerShell.Online.Commands.dll");
+            assemblies.Add("SharePoint Server 2019", @"commands\bin\Debug19\SharePointPnP.PowerShell.2019.Commands.dll");
+            assemblies.Add("SharePoint Server 2016", @"commands\bin\Debug16\SharePointPnP.PowerShell.2016.Commands.dll");
+            assemblies.Add("SharePoint Server 2013", @"commands\bin\Debug15\SharePointPnP.PowerShell.2013.Commands.dll");
+            
+          
 
             foreach (var assembly in assemblies)
             {
@@ -118,6 +125,22 @@ namespace Generate
             WriteObject("Generate documentation");
             var markDownGenerator = new MarkDownGenerator(cmdlets, OutputFolder, Book);
             markDownGenerator.Generate();
+        }
+
+        private Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            if (args.Name.StartsWith("Microsoft.SharePoint.Client"))
+            {
+                return csomAssembly;
+            }
+            foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if (assembly.FullName == args.Name)
+                {
+                    return assembly;
+                }
+            }
+            return null;
         }
     }
 }

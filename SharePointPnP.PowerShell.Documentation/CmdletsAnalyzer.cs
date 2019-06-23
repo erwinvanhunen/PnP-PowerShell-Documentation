@@ -1,14 +1,13 @@
-﻿using System;
+﻿using Generate.Model;
+using SharePointPnP.PowerShell.CmdletHelpAttributes;
+using SharePointPnP.PowerShell.Documentation.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
 using System.Reflection;
 using System.Runtime.Serialization;
-using SharePointPnP.PowerShell.CmdletHelpAttributes;
-using SharePointPnP.PowerShell.Documentation.Model;
 using CmdletInfo = SharePointPnP.PowerShell.Documentation.Model.CmdletInfo;
-using System.ComponentModel;
-using Generate.Model;
 
 namespace SharePointPnP.PowerShell.Documentation
 {
@@ -80,50 +79,53 @@ namespace SharePointPnP.PowerShell.Documentation
 #endif
                     }
 
-                    var helpAttribute = attribute as CmdletHelpAttribute;
-                    if (helpAttribute != null)
+                    if (attribute.TypeId.ToString().EndsWith("CmdletHelpAttribute"))
                     {
-                        var a = helpAttribute;
-                        cmdletInfo.Description = a.Description;
-                        cmdletInfo.Copyright = a.Copyright;
-                        cmdletInfo.Version = a.Version;
-                        cmdletInfo.DetailedDescription = a.DetailedDescription;
-                        cmdletInfo.Category = ToEnumString(a.Category);
-                        cmdletInfo.OutputType = a.OutputType;
-                        cmdletInfo.OutputTypeLink = a.OutputTypeLink;
-                        cmdletInfo.OutputTypeDescription = a.OutputTypeDescription;
+                        var helpAttribute = (CmdletHelpAttribute)attribute;
+                        if (helpAttribute != null)
+                        {
+                            var a = helpAttribute;
+                            cmdletInfo.Description = a.Description;
+                            cmdletInfo.Copyright = a.Copyright;
+                            cmdletInfo.Version = a.Version;
+                            cmdletInfo.DetailedDescription = a.DetailedDescription;
+                            cmdletInfo.Category = ToEnumString(a.Category);
+                            cmdletInfo.OutputType = a.OutputType;
+                            cmdletInfo.OutputTypeLink = a.OutputTypeLink;
+                            cmdletInfo.OutputTypeDescription = a.OutputTypeDescription;
 
-                        List<string> platforms = new List<string>();
-                        if (a.SupportedPlatform.HasFlag(CmdletSupportedPlatform.All))
-                        {
-                            platforms.Add("SharePoint Server 2013");
-                            platforms.Add("SharePoint Server 2016");
-                            platforms.Add("SharePoint Server 2019");
-                            platforms.Add("SharePoint Online");
+                            List<string> platforms = new List<string>();
+                            if (a.SupportedPlatform.HasFlag(CmdletSupportedPlatform.All))
+                            {
+                                platforms.Add("SharePoint Server 2013");
+                                platforms.Add("SharePoint Server 2016");
+                                platforms.Add("SharePoint Server 2019");
+                                platforms.Add("SharePoint Online");
+                            }
+                            if (a.SupportedPlatform.HasFlag(CmdletSupportedPlatform.OnPremises))
+                            {
+                                platforms.Add("SharePoint Server 2013");
+                                platforms.Add("SharePoint Server 2016");
+                                platforms.Add("SharePoint Server 2019");
+                            }
+                            if (a.SupportedPlatform.HasFlag(CmdletSupportedPlatform.Online))
+                            {
+                                platforms.Add("SharePoint Online");
+                            }
+                            if (a.SupportedPlatform.HasFlag(CmdletSupportedPlatform.SP2013))
+                            {
+                                platforms.Add("SharePoint 2013");
+                            }
+                            if (a.SupportedPlatform.HasFlag(CmdletSupportedPlatform.SP2016))
+                            {
+                                platforms.Add("SharePoint 2016");
+                            }
+                            if (a.SupportedPlatform.HasFlag(CmdletSupportedPlatform.SP2019))
+                            {
+                                platforms.Add("SharePoint 2019");
+                            }
+                            cmdletInfo.Platform = string.Join(", ", platforms);
                         }
-                        if (a.SupportedPlatform.HasFlag(CmdletSupportedPlatform.OnPremises))
-                        {
-                            platforms.Add("SharePoint Server 2013");
-                            platforms.Add("SharePoint Server 2016");
-                            platforms.Add("SharePoint Server 2019");
-                        }
-                        if (a.SupportedPlatform.HasFlag(CmdletSupportedPlatform.Online))
-                        {
-                            platforms.Add("SharePoint Online");
-                        }
-                        if (a.SupportedPlatform.HasFlag(CmdletSupportedPlatform.SP2013))
-                        {
-                            platforms.Add("SharePoint 2013");
-                        }
-                        if (a.SupportedPlatform.HasFlag(CmdletSupportedPlatform.SP2016))
-                        {
-                            platforms.Add("SharePoint 2016");
-                        }
-                        if (a.SupportedPlatform.HasFlag(CmdletSupportedPlatform.SP2019))
-                        {
-                            platforms.Add("SharePoint 2019");
-                        }
-                        cmdletInfo.Platform = string.Join(", ", platforms);
                     }
                     var exampleAttribute = attribute as CmdletExampleAttribute;
                     if (exampleAttribute != null)
@@ -142,7 +144,7 @@ namespace SharePointPnP.PowerShell.Documentation
                         cmdletInfo.AdditionalParameters.Add(additionalParameter);
                     }
                 }
-                cmdletInfo.RelatedLinks.Insert(0, new CmdletRelatedLinkAttribute() { Text = "SharePoint Developer Patterns and Practices", Url = "http://aka.ms/sppnp" });
+                cmdletInfo.RelatedLinks.Insert(0, new CmdletRelatedLinkAttribute() { Text = "SharePoint Developer Patterns and Practices", Url = "https://aka.ms/sppnp" });
 
                 if (!string.IsNullOrEmpty(cmdletInfo.Verb) && !string.IsNullOrEmpty(cmdletInfo.Noun))
                 {
@@ -365,7 +367,7 @@ namespace SharePointPnP.PowerShell.Documentation
                                 description = helpParameterAttribute.GetAttributeValue<string>("HelpMessage");
                             }
                         }
-                        if(!string.IsNullOrEmpty(description))
+                        if (!string.IsNullOrEmpty(description))
                         {
                             description = description.Replace("<", "&lt;").Replace(">", "&gt;");
                         }

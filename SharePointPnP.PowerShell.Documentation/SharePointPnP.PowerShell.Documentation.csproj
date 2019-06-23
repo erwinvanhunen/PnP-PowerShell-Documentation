@@ -16,8 +16,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Microsoft.SharePoint.Client">
+      <HintPath>..\..\PnP-Sites-Core\Assemblies\16.1\Microsoft.SharePoint.Client.dll</HintPath>
+    </Reference>
     <Reference Include="SharePointPnP.PowerShell.CmdletHelpAttributes">
-      <HintPath>..\SharePointPnP.PowerShell.CmdletHelpAttributes.dll</HintPath>
+      <HintPath>..\..\PnP-PowerShell\HelpAttributes\bin\Debug\SharePointPnP.PowerShell.CmdletHelpAttributes.dll</HintPath>
     </Reference>
   </ItemGroup>
 

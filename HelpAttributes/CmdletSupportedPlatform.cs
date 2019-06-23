@@ -16,6 +16,7 @@ namespace SharePointPnP.PowerShell.CmdletHelpAttributes
         Online = 2,
         OnPremises = 4,
         SP2013 = 8,
-        SP2016 = 16
+        SP2016 = 16,
+        SP2019 = 32
     }
 }
