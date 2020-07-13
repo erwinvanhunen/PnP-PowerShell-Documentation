@@ -33,8 +33,6 @@ namespace Generate
                 throw new DirectoryNotFoundException($"{RepoRoot} does not exist");
             }
 
-            WriteObject("Generating Module Files");
-
             List<CmdletInfo> allCmdlets = new List<CmdletInfo>();
             List<CmdletInfo> cmdlets = new List<CmdletInfo>();
 
@@ -81,7 +79,8 @@ namespace Generate
                     RelatedLinks = first.RelatedLinks,
                     Syntaxes = new List<CmdletSyntax>(),
                     Verb = first.Verb,
-                    Version = first.Version
+                    Version = first.Version,
+                    ApiPermissions = first.ApiPermissions
                 };
 
                 foreach (var additionalCmdlet in cmdletGroups)

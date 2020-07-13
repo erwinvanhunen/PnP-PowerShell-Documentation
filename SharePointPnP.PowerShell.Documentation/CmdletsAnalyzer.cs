@@ -143,6 +143,11 @@ namespace SharePointPnP.PowerShell.Documentation
                     {
                         cmdletInfo.AdditionalParameters.Add(additionalParameter);
                     }
+                    var apiPermissionAttribute = attribute as CmdletApiPermissionBase;
+                    if (apiPermissionAttribute != null)
+                    {
+                        cmdletInfo.ApiPermissions.Add(apiPermissionAttribute);
+                    }
                 }
                 cmdletInfo.RelatedLinks.Insert(0, new CmdletRelatedLinkAttribute() { Text = "SharePoint Developer Patterns and Practices", Url = "https://aka.ms/sppnp" });
 
@@ -522,14 +527,14 @@ namespace SharePointPnP.PowerShell.Documentation
 //using System.Management.Automation;
 //using System.Reflection;
 //using System.Runtime.Serialization;
-//using SharePointPnP.PowerShell.CmdletHelpAttributes;
-//using SharePointPnP.PowerShell.ModuleFilesGenerator.Model;
-//using CmdletInfo = SharePointPnP.PowerShell.ModuleFilesGenerator.Model.CmdletInfo;
+//using SharePointSharePointPnP.PowerShell.CmdletHelpAttributes;
+//using SharePointSharePointPnP.PowerShell.ModuleFilesGenerator.Model;
+//using CmdletInfo = SharePointSharePointPnP.PowerShell.ModuleFilesGenerator.Model.CmdletInfo;
 //using System.ComponentModel;
 //using Generate.Model;
 //using Mono.Cecil;
 
-//namespace SharePointPnP.PowerShell.ModuleFilesGenerator
+//namespace SharePointSharePointPnP.PowerShell.ModuleFilesGenerator
 //{
 //    internal class CmdletsAnalyzer
 //    {

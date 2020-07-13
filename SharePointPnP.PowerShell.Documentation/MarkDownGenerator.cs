@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SharePointPnP.PowerShell.CmdletHelpAttributes;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -71,9 +72,9 @@ namespace SharePointPnP.PowerShell.Documentation
                     }
                     else
                     {
-                        docBuilder.Append($@"---{Environment.NewLine}external help file:{Environment.NewLine}applicable: {cmdletInfo.Platform}{Environment.NewLine}schema: 2.0.0{Environment.NewLine}---{Environment.NewLine}");
+                        docBuilder.Append($@"---{Environment.NewLine}external help file:{Environment.NewLine}online version: https://docs.microsoft.com/powershell/module/sharepoint-pnp/{cmdletInfo.FullCommand.ToLower()}{Environment.NewLine}applicable: {cmdletInfo.Platform}{Environment.NewLine}schema: 2.0.0{Environment.NewLine}title: {cmdletInfo.FullCommand}{Environment.NewLine}---{Environment.NewLine}");
 
-                        docBuilder.Append($"# {cmdletInfo.FullCommand}{Environment.NewLine}{Environment.NewLine}");
+                        docBuilder.Append($"{Environment.NewLine}# {cmdletInfo.FullCommand}{Environment.NewLine}{Environment.NewLine}");
 
                         docBuilder.Append($"## SYNOPSIS{Environment.NewLine}{cmdletInfo.Description}{Environment.NewLine}{Environment.NewLine}");
 
@@ -126,6 +127,95 @@ namespace SharePointPnP.PowerShell.Documentation
                                 docBuilder.Append(syntaxText);
                                 docBuilder.Append($"```{Environment.NewLine}{Environment.NewLine}");
                             }
+                        }
+
+                        var permissionHeaderAdded = false;
+                        // API Permissions
+                        if (cmdletInfo.ApiPermissions.Count > 0)
+                        {
+                            docBuilder.AppendLine($"## REQUIRED PERMISSIONS{Environment.NewLine}");
+                            permissionHeaderAdded = true;
+                            // Go through each of the API permissions on this cmdlet and build a dictionary with the API type as the key and the requested scope(s) on it as the value
+                            var requiredOrPermissionByApiDictionary = new Dictionary<string, List<string>>(cmdletInfo.ApiPermissions.Count);
+                            var requiredAndPermissionByApiDictionary = new Dictionary<string, List<string>>(cmdletInfo.ApiPermissions.Count);
+                            foreach (var requiredApiPermission in cmdletInfo.ApiPermissions)
+                            {
+
+                                requiredOrPermissionByApiDictionary = ParseApiPermissions("OrApiPermissions", requiredApiPermission, requiredOrPermissionByApiDictionary);
+                                requiredAndPermissionByApiDictionary = ParseApiPermissions("AndApiPermissions", requiredApiPermission, requiredAndPermissionByApiDictionary);
+
+                                //// Through reflection, get the friendly name of the API and the permission scopes. We must use reflection here as generic attribute types do not exist in C# yet. Multiple scopes are returned as a comma-space separated string.
+                                //var scopePermission = requiredApiPermission.GetType().GetProperty("OrApiPermissions")?.GetValue(requiredApiPermission, null);
+
+                                //// If we were unable to retrieve the scopes and/or api through reflection, continue with the next permission attribute
+                                //if (scopePermission == null || requiredApiPermission.ApiName == null) continue;
+
+                                //// Ensure our dictionary with APIs already has an entry for the current API being processed
+                                //if(!requiredPermissionByApiDictionary.ContainsKey(requiredApiPermission.ApiName))
+                                //{
+                                //    // Add another entry to the dictionary for this API
+                                //    requiredPermissionByApiDictionary.Add(requiredApiPermission.ApiName, new List<string>());
+                                //}
+
+                                //// The returned scopes are the enum names which use an underscore instead of a dot for the scope names and are comma-space separated if multiple scopes are possible
+                                //var scopes = scopePermission.ToString().Replace("_", ".").Split(',');
+
+                                //// Go through each scope
+                                //foreach (var scope in scopes)
+                                //{
+                                //    // Remove the potential trailing space
+                                //    var trimmedScope = scope.Trim();
+
+                                //    // If the scope is not known to be required yet, add it to the dictionary with APIs and requested scopes
+                                //    if (!requiredPermissionByApiDictionary[requiredApiPermission.ApiName].Contains(trimmedScope))
+                                //    {
+                                //        requiredPermissionByApiDictionary[requiredApiPermission.ApiName].Add(trimmedScope);
+                                //    }
+                                //}
+                            }
+
+                            // Loop through all the items in our dictionary with API types and requested scopes on the API so we can add it to the help text output
+                            foreach (var requiredPermissionDictionaryItem in requiredOrPermissionByApiDictionary)
+                            {
+                                if (requiredPermissionDictionaryItem.Value.Count > 0)
+                                {
+                                    if (requiredPermissionDictionaryItem.Value.Count() == 1)
+                                    {
+                                        docBuilder.AppendLine($"  * {requiredPermissionDictionaryItem.Key}: {requiredPermissionDictionaryItem.Value[0]}");
+                                    }
+                                    else
+                                    {
+                                        docBuilder.AppendLine($"  * {requiredPermissionDictionaryItem.Key} : One of {string.Join(", ", requiredPermissionDictionaryItem.Value.OrderBy(s => s))}");
+                                    }
+                                }
+                            }
+                            foreach (var requiredPermissionDictionaryItem in requiredAndPermissionByApiDictionary)
+                            {
+                                if (requiredPermissionDictionaryItem.Value.Count > 0)
+                                {
+                                    if (requiredPermissionDictionaryItem.Value.Count() == 1)
+                                    {
+                                        docBuilder.AppendLine($"  * {requiredPermissionDictionaryItem.Key}: {requiredPermissionDictionaryItem.Value[0]}");
+                                    }
+                                    else
+                                    {
+                                        docBuilder.AppendLine($"  *  {requiredPermissionDictionaryItem.Key}: All of {string.Join(", ", requiredPermissionDictionaryItem.Value.OrderBy(s => s))}");
+                                    }
+                                }
+                            }
+
+                            docBuilder.AppendLine();
+                        }
+
+                        // Notice if the cmdlet is a PnPAdminCmdlet that access to the SharePoint Tenant Admin site is needed
+                        if (cmdletInfo.CmdletType.BaseType.Name.Equals("PnPAdminCmdlet"))
+                        {
+                            if (!permissionHeaderAdded)
+                            {
+                                docBuilder.AppendLine($"## REQUIRED PERMISSIONS{Environment.NewLine}");
+                            }
+                            docBuilder.AppendLine("* SharePoint: Access to the SharePoint Tenant Administration site");
+                            docBuilder.AppendLine();
                         }
                         if (!string.IsNullOrEmpty(cmdletInfo.DetailedDescription))
                         {
@@ -341,7 +431,7 @@ namespace SharePointPnP.PowerShell.Documentation
                         parameter.Type = "Int";
                     }
                     docBuilder.Append($"|{parameter.Name}|{parameter.Type}|{parameter.Description}|{parameter.Required}||{Environment.NewLine}");
-                    
+
                     //if (!string.IsNullOrEmpty(parameter.Platform))
                     //{
                     //    var cmdletPlatforms = cmdletInfo.Platform.Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
@@ -465,6 +555,40 @@ namespace SharePointPnP.PowerShell.Documentation
             System.IO.File.WriteAllText(mappingPath, json);
         }
 
+        private Dictionary<string, List<string>> ParseApiPermissions(string propertyName, CmdletApiPermissionBase requiredApiPermission, Dictionary<string, List<string>> requiredPermissionByApiDictionary)
+        {
+            // Through reflection, get the friendly name of the API and the permission scopes. We must use reflection here as generic attribute types do not exist in C# yet. Multiple scopes are returned as a comma-space separated string.
+            var scopePermission = requiredApiPermission.GetType().GetProperty(propertyName)?.GetValue(requiredApiPermission, null);
+
+            // If we were unable to retrieve the scopes and/or api through reflection, continue with the next permission attribute
+            if (scopePermission != null && requiredApiPermission.ApiName != null)
+            {
+
+                // Ensure our dictionary with APIs already has an entry for the current API being processed
+                if (!requiredPermissionByApiDictionary.ContainsKey(requiredApiPermission.ApiName))
+                {
+                    // Add another entry to the dictionary for this API
+                    requiredPermissionByApiDictionary.Add(requiredApiPermission.ApiName, new List<string>());
+                }
+
+                // The returned scopes are the enum names which use an underscore instead of a dot for the scope names and are comma-space separated if multiple scopes are possible
+                var scopes = scopePermission.ToString().Replace("_", ".").Split(',').Where(s => s != "None");
+
+                // Go through each scope
+                foreach (var scope in scopes)
+                {
+                    // Remove the potential trailing space
+                    var trimmedScope = scope.Trim();
+
+                    // If the scope is not known to be required yet, add it to the dictionary with APIs and requested scopes
+                    if (!requiredPermissionByApiDictionary[requiredApiPermission.ApiName].Contains(trimmedScope))
+                    {
+                        requiredPermissionByApiDictionary[requiredApiPermission.ApiName].Add(trimmedScope);
+                    }
+                }
+            }
+            return requiredPermissionByApiDictionary;
+        }
         private void GenerateTOC()
         {
             var originalMd = string.Empty;

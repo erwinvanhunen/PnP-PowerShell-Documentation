@@ -103,7 +103,7 @@ namespace SharePointPnP.PowerShell.Documentation
             }
 #if !NETCOREAPP2_0
             var manifest = $@"@{{
-    RootModule = 'SharePointPnP.PowerShell.{spVersion}.Commands.dll'{nestedModules}
+    RootModule = 'SharePointSharePointPnP.PowerShell.{spVersion}.Commands.dll'{nestedModules}
     ModuleVersion = '{_assemblyVersion}'
     Description = 'SharePoint Patterns and Practices PowerShell Cmdlets for SharePoint {spVersion}'
     GUID = '8f1147be-a8e4-4bd2-a705-841d5334edc0'
@@ -114,7 +114,7 @@ namespace SharePointPnP.PowerShell.Documentation
     FunctionsToExport = '*'
     CmdletsToExport = {cmdletsToExport}
     VariablesToExport = '*'{aliases}
-    FormatsToProcess = 'SharePointPnP.PowerShell.{spVersion}.Commands.Format.ps1xml' 
+    FormatsToProcess = 'SharePointSharePointPnP.PowerShell.{spVersion}.Commands.Format.ps1xml' 
     PrivateData = @{{
         PSData = @{{
             ProjectUri = 'https://aka.ms/sppnp'
@@ -124,7 +124,7 @@ namespace SharePointPnP.PowerShell.Documentation
 }}";
 #else
             var manifest = $@"@{{
-    RootModule = 'SharePointPnP.PowerShell.Core.dll'
+    RootModule = 'SharePointSharePointPnP.PowerShell.Core.dll'
     ModuleVersion = '{_assemblyVersion}'
     Description = 'SharePoint Patterns and Practices PowerShell Cmdlets for SharePoint Online'
     GUID = '0b0430ce-d799-4f3b-a565-f0dca1f31e17'
@@ -135,7 +135,7 @@ namespace SharePointPnP.PowerShell.Documentation
     FunctionsToExport = '*'
     CmdletsToExport = {cmdletsToExport}
     VariablesToExport = '*'{aliases}
-    FormatsToProcess = 'SharePointPnP.PowerShell.{spVersion}.Format.ps1xml' 
+    FormatsToProcess = 'SharePointSharePointPnP.PowerShell.{spVersion}.Format.ps1xml' 
     PrivateData = @{{
         PSData = @{{
             ProjectUri = 'https://aka.ms/sppnp'

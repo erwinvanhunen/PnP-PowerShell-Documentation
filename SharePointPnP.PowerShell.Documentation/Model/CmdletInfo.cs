@@ -40,6 +40,9 @@ namespace SharePointPnP.PowerShell.Documentation.Model
 
         public string Platform { get; set; }
 
+        public List<CmdletApiPermissionBase> ApiPermissions { get; set; }
+
+
         public CmdletInfo()
         {
             Parameters = new List<CmdletParameterInfo>();
@@ -48,6 +51,7 @@ namespace SharePointPnP.PowerShell.Documentation.Model
             Examples = new List<CmdletExampleAttribute>();
             RelatedLinks = new List<CmdletRelatedLinkAttribute>();
             AdditionalParameters = new List<CmdletAdditionalParameter>();
+            ApiPermissions = new List<CmdletApiPermissionBase>();
         }
     }
 }

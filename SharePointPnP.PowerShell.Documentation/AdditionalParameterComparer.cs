@@ -2,7 +2,7 @@
 using SharePointPnP.PowerShell.CmdletHelpAttributes;
 using SharePointPnP.PowerShell.Documentation.Model;
 
-namespace SharePointPnP.PowerShell.Documentation
+namespace SharePointSharePointPnP.PowerShell.Documentation
 {
     internal class AdditionalParameterComparer : IEqualityComparer<CmdletAdditionalParameter>
     {

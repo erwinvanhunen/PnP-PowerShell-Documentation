@@ -1,0 +1,1 @@
+import-module c:\repos\pnp-powershell-documentation\SharePointPnP.PowerShell.Documentation\bin\Debug\netstandard2.0\sharepointpnp.powershell.documentation.dll
